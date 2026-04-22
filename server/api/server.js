@@ -26,7 +26,7 @@ app.use(
   }),
 );
 
-app.get("/api/test", (req, res) => res.json({ message: "Successful!" }));
+app.get("/api/test", (req, res) => res.json({ message: "Success!" }));
 
 // Routes
 app.use("/api/v1/osint", osintRoutes);
