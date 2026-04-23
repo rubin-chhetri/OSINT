@@ -14,7 +14,9 @@ class WhoisAdapter extends BaseAdapter {
     if (targetDomain.includes(" ")) {
       targetDomain = targetDomain
         .split(" ")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+        )
         .join("");
     }
 
@@ -22,8 +24,6 @@ class WhoisAdapter extends BaseAdapter {
     if (!targetDomain.includes(".")) {
       targetDomain = `${targetDomain}.com`;
     }
-
-
 
     const response = await axios.get(
       `https://www.whoisxmlapi.com/whoisserver/WhoisService?apiKey=${osintConfig.whoisKey}&domainName=${encodeURIComponent(targetDomain)}&outputFormat=JSON`,
@@ -37,7 +37,6 @@ class WhoisAdapter extends BaseAdapter {
       response.data.WhoisRecord,
       `https://whois.com/whois/${encodeURIComponent(targetDomain)}`,
     );
-
   }
 }
 
