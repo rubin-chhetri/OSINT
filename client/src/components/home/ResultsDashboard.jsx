@@ -8,6 +8,11 @@ import {
   Download,
   FileDown,
   ChevronDown,
+  Zap,
+  Globe,
+  Link2,
+  Loader2,
+  AlertCircle
 } from "lucide-react";
 import {
   exportReportMarkdown,
@@ -84,76 +89,72 @@ const ResultsDashboard = ({ report }) => {
   ];
 
   return (
-    <div className="mt-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* Header Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
-          <div className="flex items-center gap-3 mb-2">
-            <Shield
-              className={
-                report.riskLevel === "High" ? "text-red-500" : "text-green-500"
-              }
-            />
-            <span className="text-slate-400 text-sm font-medium uppercase">
-              Risk Assessment
-            </span>
+    <div className="mt-8 space-y-6">
+      {/* Header Stats & Entity Resolution: Utilitarian Boxes */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+        {/* Verification Status */}
+        <div className="pro-card p-5 relative overflow-hidden bg-white">
+          <div className={`absolute top-0 bottom-0 left-0 w-1 ${
+            report.resolutionStatus === 'Confirmed' ? 'bg-green-500' : 
+            report.resolutionStatus === 'Ambiguous' ? 'bg-amber-500' : 'bg-red-500'
+          }`} />
+          <div className="flex items-center gap-2 mb-2">
+            <div className={`w-2 h-2 rounded-full ${
+              report.resolutionStatus === 'Confirmed' ? 'bg-green-500' : 
+              report.resolutionStatus === 'Ambiguous' ? 'bg-amber-500' : 'bg-red-500'
+            }`} />
+            <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Resolution</span>
           </div>
-          <h2 className="text-2xl font-bold text-white">
-            {report.riskLevel} Risk
-          </h2>
+          <h2 className="text-xl font-bold text-slate-900">{report.resolutionStatus}</h2>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
-          <div className="flex items-center gap-3 mb-2 text-blue-500">
-            <Hash size={20} />
-            <span className="text-slate-400 text-sm font-medium uppercase">
-              Intelligence Vectors
-            </span>
+        {/* Confidence Score */}
+        <div className="pro-card p-5 bg-white">
+          <div className="flex items-center gap-2 mb-2 text-slate-500">
+            <Zap size={14} />
+            <span className="text-[10px] font-bold uppercase tracking-wider">Confidence</span>
           </div>
-          <h2 className="text-2xl font-bold text-white">
-            {report.results.length} Sources
-          </h2>
+          <h2 className="text-xl font-bold text-slate-900">{report.overallConfidence}% Match</h2>
         </div>
 
-        {/* Export Dropdown */}
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between relative">
+        {/* Primary Cluster */}
+        <div className="pro-card p-5 bg-white">
+          <div className="flex items-center gap-2 mb-2 text-slate-500">
+            <Globe size={14} />
+            <span className="text-[10px] font-bold uppercase tracking-wider">Cluster</span>
+          </div>
+          <h2 className="text-lg font-bold text-slate-900 truncate">{report.primaryCluster}</h2>
+        </div>
+
+        {/* Export Button */}
+        <div className="relative group">
           <button
             onClick={() => setShowExportMenu((prev) => !prev)}
             disabled={!!exporting}
-            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 text-white py-3 rounded-xl transition-all font-medium"
+            className="w-full h-full pro-card p-5 flex items-center justify-between hover:bg-slate-50 transition-colors bg-white"
           >
+            <div className="text-left">
+              <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block mb-1">Export Data</span>
+              <span className="text-slate-900 font-semibold text-sm">Download Report</span>
+            </div>
             {exporting ? (
-              <>
-                <Download size={18} className="animate-bounce" />
-                Exporting {exporting.toUpperCase()}...
-              </>
+              <Loader2 className="animate-spin text-blue-500" size={20} />
             ) : (
-              <>
-                <FileDown size={18} />
-                Export Report
-                <ChevronDown
-                  size={16}
-                  className={`transition-transform ${showExportMenu ? "rotate-180" : ""}`}
-                />
-              </>
+              <ChevronDown size={18} className="text-slate-500" />
             )}
           </button>
-
-          {/* Dropdown Menu */}
           {showExportMenu && (
-            <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-2xl shadow-black/50">
+            <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-white border border-slate-200 rounded-lg overflow-hidden shadow-xl">
               {exportOptions.map((opt) => (
                 <button
                   key={opt.key}
                   onClick={() => handleExport(opt.key)}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-700 transition-colors text-left"
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left border-b border-slate-100 last:border-0"
                 >
                   <span className="text-lg">{opt.icon}</span>
                   <div>
-                    <p className="text-white text-sm font-medium">
-                      {opt.label}
-                    </p>
-                    <p className="text-slate-400 text-xs">{opt.desc}</p>
+                    <p className="text-slate-900 text-xs font-semibold">{opt.label}</p>
+                    <p className="text-slate-500 text-[10px]">{opt.desc}</p>
                   </div>
                 </button>
               ))}
@@ -162,78 +163,102 @@ const ResultsDashboard = ({ report }) => {
         </div>
       </div>
 
+      {/* Shared Pivots: Clean Inline List */}
+      {report.sharedPivots && report.sharedPivots.length > 0 && (
+        <div className="pro-card p-4 flex flex-col md:flex-row md:items-center gap-4 bg-blue-50/5 border-blue-100">
+          <div className="flex items-center gap-2 shrink-0">
+            <Link2 size={16} className="text-blue-600" />
+            <h4 className="text-blue-600 text-[10px] font-bold uppercase tracking-widest">Shared Intelligence Pivots</h4>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {report.sharedPivots.map((pivot, i) => (
+              <span key={i} className="px-2 py-1 bg-white border border-slate-200 rounded text-[10px] text-slate-600 font-mono">
+                {pivot}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Vector Results Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {report.results.map((vector, idx) => (
           <div
             key={idx}
-            className={`bg-slate-900/50 border rounded-2xl overflow-hidden backdrop-blur-md transition-all ${
-              vector.error ? "border-red-500/30 shadow-lg shadow-red-500/5" : "border-slate-800"
-            }`}
+            className="pro-card bg-white flex flex-col h-full"
           >
-            <div className={`p-4 md:p-5 border-b flex justify-between items-center ${
-              vector.error ? "bg-red-500/5 border-red-500/20" : "bg-slate-800/30 border-slate-800"
-            }`}>
+            {/* Header: Fixed Height */}
+            <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <div>
-                <h3 className={`font-bold text-sm md:text-base ${vector.error ? "text-red-400" : "text-white"}`}>
-                  {vector.source}
-                </h3>
-                <p className="text-[10px] md:text-xs text-slate-500">{vector.category}</p>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-sm text-slate-900">
+                    {vector.source}
+                  </h3>
+                  {report.vectorBreakdown?.[idx]?.isCorroborated && (
+                    <div className="bg-green-50 text-green-700 px-1.5 py-0.5 rounded text-[8px] font-bold border border-green-200 uppercase tracking-tighter">
+                      Corroborated
+                    </div>
+                  )}
+                </div>
+                <p className="text-[10px] text-slate-500 font-medium">{vector.category}</p>
               </div>
-              <div className={`px-2 md:px-3 py-1 rounded-full text-[10px] md:text-xs font-mono ${
+              <div className={`px-2 py-1 rounded text-[10px] font-mono font-bold ${
                 vector.error 
-                  ? vector.data?.status === "Not Found" 
-                    ? "bg-amber-500/20 text-amber-400" 
-                    : "bg-red-500/20 text-red-400" 
-                  : "bg-blue-500/10 text-blue-400"
+                  ? "bg-red-50 text-red-600" 
+                  : "bg-blue-50 text-blue-600"
               }`}>
-                {vector.error ? vector.data?.status || "Failed" : `${vector.confidenceScore} Match`}
+                {vector.error ? "FAILURE" : vector.confidenceScore}
               </div>
             </div>
 
-            <div className="p-4 md:p-5">
-              <div className="max-h-60 overflow-y-auto custom-scrollbar">
+            {/* Content Body */}
+            <div className="p-4 flex-grow flex flex-col">
+              {/* Analyst Reason: Muted & Simple */}
+              {report.vectorBreakdown?.[idx] && (
+                <div className="mb-4 flex items-start gap-2">
+                  <AlertCircle size={12} className="text-slate-400 mt-0.5 shrink-0" />
+                  <p className="text-[10px] text-slate-500 font-medium">
+                    <span className="text-slate-900">ANALYST NOTE:</span> {report.vectorBreakdown[idx].reason}
+                  </p>
+                </div>
+              )}
+
+              {/* Data Preview: Flat & Mono */}
+              <div className="flex-grow max-h-80 overflow-y-auto custom-scrollbar">
                 {vector.error ? (
-                  <div className="py-8 text-center space-y-3">
-                    <div className="relative inline-block">
-                      <Shield size={32} className={`mx-auto ${vector.data?.status === "Not Found" ? "text-amber-500/50" : "text-red-500/50"}`} />
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-slate-900 rounded-full flex items-center justify-center">
-                        <div className={`w-2 h-2 rounded-full ${vector.data?.status === "Not Found" ? "bg-amber-500" : "bg-red-500"}`}></div>
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      <p className={`${vector.data?.status === "Not Found" ? "text-amber-400" : "text-red-400"} font-bold text-sm`}>
-                        {vector.message}
-                      </p>
-                      <p className="text-slate-500 text-xs px-6 leading-relaxed">
-                        {vector.data?.status === "Not Found" 
-                          ? `The target query does not return results for ${vector.source}. Try using a more specific identifier like a domain name or full company name.`
-                          : `The intelligence vector for ${vector.source} is currently unreachable. This may be due to API rate limits or service maintenance.`
-                        }
-                      </p>
-                    </div>
+                  <div className="py-12 text-center">
+                    <Shield size={24} className="mx-auto text-slate-300 mb-3" />
+                    <p className="text-red-500 text-xs font-bold mb-1 uppercase tracking-wider">{vector.message || "Vector Unreachable"}</p>
+                    <p className="text-slate-400 text-[10px] px-8 italic">Service response indicates a non-critical acquisition failure.</p>
                   </div>
                 ) : (
-
-                  <pre className="text-[10px] md:text-xs text-slate-400 font-mono whitespace-pre-wrap">
-                    {JSON.stringify(vector.data, null, 2)}
-                  </pre>
+                  <div className="pt-2">
+                    <div className="text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-2 border-b border-slate-100 pb-1 flex justify-between">
+                      <span>Raw Intelligence Payload</span>
+                      <span>UTF-8</span>
+                    </div>
+                    <pre className="text-[11px] text-slate-600 font-mono whitespace-pre-wrap leading-relaxed">
+                      {JSON.stringify(vector.data, null, 2)}
+                    </pre>
+                  </div>
                 )}
               </div>
 
-              <div className="mt-4 pt-4 border-t border-slate-800 flex justify-between items-center">
-                <span className="text-[10px] text-slate-600 flex items-center gap-1">
-                  <Clock size={10} />{" "}
-                  {new Date(vector.timestamp).toLocaleTimeString()}
-                </span>
+              {/* Footer Meta */}
+              <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <span className="text-[9px] text-slate-400 flex items-center gap-1 font-mono uppercase tracking-tighter">
+                    <Clock size={10} /> {new Date(vector.timestamp).toLocaleTimeString()}
+                  </span>
+                </div>
                 {!vector.error && vector.sourceUrl && (
                   <a
                     href={vector.sourceUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[10px] md:text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors"
+                    className="text-[10px] text-blue-600 hover:text-blue-500 flex items-center gap-1 transition-colors font-semibold"
                   >
-                    Source Link <ExternalLink size={12} />
+                    LINK <ExternalLink size={10} />
                   </a>
                 )}
               </div>
@@ -241,7 +266,6 @@ const ResultsDashboard = ({ report }) => {
           </div>
         ))}
       </div>
-
     </div>
   );
 };

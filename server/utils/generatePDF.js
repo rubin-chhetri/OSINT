@@ -1,10 +1,5 @@
 import PDFDocument from "pdfkit";
 
-/**
- * Generates a PDF report and returns it as a Buffer.
- * @param {Object} report - The Mongoose report document.
- * @returns {Promise<Buffer>} - The PDF as a buffer.
- */
 const generatePDF = (report) => {
   return new Promise((resolve, reject) => {
     const results = report.results || [];
@@ -40,9 +35,7 @@ const generatePDF = (report) => {
           : colors.success;
 
     // ── Header ──
-    doc
-      .rect(0, 0, doc.page.width, 120)
-      .fill(colors.primary);
+    doc.rect(0, 0, doc.page.width, 120).fill(colors.primary);
 
     doc
       .fontSize(24)
@@ -80,9 +73,7 @@ const generatePDF = (report) => {
 
     // Risk badge
     const riskX = doc.page.width - 180;
-    doc
-      .roundedRect(riskX, y + 15, 110, 35, 6)
-      .fill(riskColor);
+    doc.roundedRect(riskX, y + 15, 110, 35, 6).fill(riskColor);
 
     doc
       .fontSize(12)
@@ -95,15 +86,88 @@ const generatePDF = (report) => {
 
     y += 90;
 
+    // ── Entity Resolution Intelligence (NEW) ──
+    doc
+      .fontSize(14)
+      .font("Helvetica-Bold")
+      .fillColor(colors.primary)
+      .text("Intelligence Analysis", 50, y);
+
+    y += 22;
+
+    const statusColor =
+      report.resolutionStatus === "Confirmed"
+        ? colors.success
+        : report.resolutionStatus === "Ambiguous"
+          ? colors.warning
+          : colors.danger;
+
+    // Status Badge
+    doc.roundedRect(50, y, 120, 45, 4).fill("#f8fafc");
+    doc
+      .fontSize(8)
+      .fillColor(colors.muted)
+      .text("STATUS", 60, y + 10);
+    doc
+      .fontSize(11)
+      .font("Helvetica-Bold")
+      .fillColor(statusColor)
+      .text(report.resolutionStatus, 60, y + 22);
+
+    // Confidence Badge
+    doc.roundedRect(180, y, 120, 45, 4).fill("#f8fafc");
+    doc
+      .fontSize(8)
+      .font("Helvetica")
+      .fillColor(colors.muted)
+      .text("CONFIDENCE", 190, y + 10);
+    doc
+      .fontSize(11)
+      .font("Helvetica-Bold")
+      .fillColor(colors.primary)
+      .text(`${report.overallConfidence}%`, 190, y + 22);
+
+    // Cluster Badge
+    doc.roundedRect(310, y, 235, 45, 4).fill("#f8fafc");
+    doc
+      .fontSize(8)
+      .font("Helvetica")
+      .fillColor(colors.muted)
+      .text("ENTITY CLUSTER", 320, y + 10);
+    doc
+      .fontSize(10)
+      .font("Helvetica-Bold")
+      .fillColor(colors.accent)
+      .text(report.primaryCluster, 320, y + 22);
+
+    y += 60;
+
+    // Shared Pivots (Evidence)
+    if (report.sharedPivots && report.sharedPivots.length > 0) {
+      doc
+        .fontSize(9)
+        .font("Helvetica-Bold")
+        .fillColor(colors.muted)
+        .text("VERIFIED PIVOTS:", 50, y);
+      doc
+        .fontSize(8)
+        .font("Courier")
+        .fillColor(colors.accent)
+        .text(report.sharedPivots.join(" • "), 145, y, {
+          width: doc.page.width - 200,
+        });
+      y = doc.y + 20;
+    }
+
     // ── Summary ──
     if (report.summary) {
       doc
-        .fontSize(14)
+        .fontSize(11)
         .font("Helvetica-Bold")
         .fillColor(colors.primary)
         .text("Summary", 50, y);
 
-      y += 22;
+      y += 18;
       doc
         .fontSize(10)
         .font("Helvetica")
@@ -126,11 +190,7 @@ const generatePDF = (report) => {
       .fontSize(14)
       .font("Helvetica-Bold")
       .fillColor(colors.primary)
-      .text(
-        `Intelligence Vectors (${results.length} Sources)`,
-        50,
-        y,
-      );
+      .text(`Intelligence Vectors (${results.length} Sources)`, 50, y);
     y += 28;
 
     // ── Vector Cards ──
@@ -176,33 +236,48 @@ const generatePDF = (report) => {
           y + 45,
         );
 
+      // Analyst Note (from Vector Breakdown)
+      const breakdown = report.vectorBreakdown?.[idx];
+      if (breakdown) {
+        doc
+          .fontSize(8)
+          .font("Helvetica-Oblique")
+          .fillColor(colors.muted)
+          .text(`Analyst Note: ${breakdown.reason}`, 70, y + 55, {
+            width: doc.page.width - 160,
+          });
+      }
+
       // Source URL
       if (vector.sourceUrl) {
         doc
           .fontSize(8)
+          .font("Helvetica")
           .fillColor(colors.accent)
-          .text(`Source: ${vector.sourceUrl}`, 70, y + 58, {
+          .text(`Source: ${vector.sourceUrl}`, 70, y + 70, {
             width: doc.page.width - 160,
             lineBreak: true,
           });
       }
 
-      // Data preview (truncated)
+      // Data preview (FULL DATA)
       const dataStr = JSON.stringify(vector.data || {}, null, 2) || "";
-      const truncatedData =
-        dataStr.length > 300 ? dataStr.substring(0, 300) + "..." : dataStr;
+      // We still use a safe limit for the buffer, but much larger (10KB)
+      const fullData =
+        dataStr.length > 10000
+          ? dataStr.substring(0, 10000) + "\n\n[Content Truncated for PDF Size]"
+          : dataStr;
 
       doc
         .fontSize(7)
         .font("Courier")
         .fillColor("#475569")
-        .text(truncatedData, 70, y + 75, {
+        .text(fullData, 70, y + 85, {
           width: doc.page.width - 160,
-          height: 55,
-          ellipsis: true,
+          lineBreak: true,
         });
 
-      y += cardHeight + 15;
+      y = doc.y + 30; // Dynamically set Y to the end of the text
     });
 
     // ── Footer ──

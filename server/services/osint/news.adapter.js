@@ -10,12 +10,12 @@ class NewsAdapter extends BaseAdapter {
   async fetch(query) {
     try {
       const response = await axios.get(
-        `https://newsapi.org/v2/everything?q=${query}&apiKey=${osintConfig.newsKey}&pageSize=5`,
+        `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&apiKey=${osintConfig.newsKey}&pageSize=5`,
       );
 
       return this.formatResult(
         response.data.articles,
-        `https://news.google.com/search?q=${query}`,
+        `https://news.google.com/search?q=${encodeURIComponent(query)}`,
       );
     } catch (error) {
       console.error(`News Error: ${error.message}`);

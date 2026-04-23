@@ -7,11 +7,14 @@ import {
   exportReportPDF,
   exportReportDocx,
 } from "../controllers/osint.controller.js";
+import { apiRateLimiter } from "../middleware/rateLimiter.middleware.js";
+import { validateSearch } from "../middleware/validator.middleware.js";
 
 const router = Router();
 
-// Define the search route
-router.post("/search", performSearch);
+router.use(apiRateLimiter);
+
+router.post("/search", validateSearch, performSearch);
 router.get("/history", getHistory);
 router.get("/report/:id", getReportById);
 router.get("/export/:id", exportReport);

@@ -4,15 +4,22 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { performOsintSearch, exportReportMarkdown } from "../../api/search.api";
 import { Search, Loader2, ShieldAlert, Download, Globe } from "lucide-react";
 
-const SearchConsole = ({ onResultsFound }) => {
+const SearchConsole = ({ onResultsFound, onLoadingChange }) => {
   const [query, setQuery] = useState("");
 
   const queryClient = useQueryClient();
   const searchMutation = useMutation({
     mutationFn: performOsintSearch,
+    onMutate: () => {
+      if (onLoadingChange) onLoadingChange(true);
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["searchHistory"] });
       if (onResultsFound) onResultsFound(data.data);
+      if (onLoadingChange) onLoadingChange(false);
+    },
+    onError: () => {
+      if (onLoadingChange) onLoadingChange(false);
     },
   });
 
@@ -31,7 +38,7 @@ const SearchConsole = ({ onResultsFound }) => {
             {searchMutation.isPending ? (
               <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />
             ) : (
-              <Search className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+              <Search className="h-5 w-5 text-slate-500 transition-colors" />
             )}
           </div>
 
@@ -40,15 +47,15 @@ const SearchConsole = ({ onResultsFound }) => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Enter target name or domain..."
-            className="block w-full pl-12 pr-4 md:pr-32 py-4 bg-slate-900/50 border border-slate-700 text-white placeholder-slate-500 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none backdrop-blur-sm text-sm md:text-base"
+            className="block w-full pl-12 pr-4 md:pr-32 py-4 bg-white border border-slate-200 text-slate-900 placeholder-slate-400 rounded-lg focus:border-blue-500/50 transition-all outline-none text-sm md:text-base shadow-sm"
           />
 
           <button
             type="submit"
             disabled={searchMutation.isPending}
-            className="hidden md:flex absolute right-2 top-2 bottom-2 px-6 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 text-white font-medium rounded-lg transition-colors items-center gap-2"
+            className="hidden md:flex absolute right-2 top-2 bottom-2 px-6 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-100 text-white font-semibold rounded-md transition-colors items-center gap-2 text-xs tracking-wider"
           >
-            {searchMutation.isPending ? "Scanning..." : "Run Intelligence"}
+            {searchMutation.isPending ? "SCANNING..." : "RUN INTELLIGENCE"}
           </button>
         </div>
 
@@ -56,14 +63,14 @@ const SearchConsole = ({ onResultsFound }) => {
         <button
           type="submit"
           disabled={searchMutation.isPending}
-          className="flex md:hidden w-full justify-center py-4 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 text-white font-bold rounded-xl transition-all items-center gap-2 shadow-lg shadow-blue-500/20"
+          className="flex md:hidden w-full justify-center py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-100 text-white font-bold rounded-lg transition-all items-center gap-2"
         >
           {searchMutation.isPending ? (
             <Loader2 className="animate-spin" />
           ) : (
             <Search size={18} />
           )}
-          {searchMutation.isPending ? "Running Discovery..." : "Run Intelligence"}
+          {searchMutation.isPending ? "RUNNING DISCOVERY..." : "RUN INTELLIGENCE"}
         </button>
       </form>
 

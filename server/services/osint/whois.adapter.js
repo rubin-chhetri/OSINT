@@ -26,7 +26,7 @@ class WhoisAdapter extends BaseAdapter {
 
 
     const response = await axios.get(
-      `https://www.whoisxmlapi.com/whoisserver/WhoisService?apiKey=${osintConfig.whoisKey}&domainName=${targetDomain}&outputFormat=JSON`,
+      `https://www.whoisxmlapi.com/whoisserver/WhoisService?apiKey=${osintConfig.whoisKey}&domainName=${encodeURIComponent(targetDomain)}&outputFormat=JSON`,
     );
 
     if (!response.data.WhoisRecord) {
@@ -35,7 +35,7 @@ class WhoisAdapter extends BaseAdapter {
 
     return this.formatResult(
       response.data.WhoisRecord,
-      `https://whois.com/whois/${targetDomain}`,
+      `https://whois.com/whois/${encodeURIComponent(targetDomain)}`,
     );
 
   }

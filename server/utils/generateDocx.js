@@ -13,11 +13,6 @@ import {
   ShadingType,
 } from "docx";
 
-/**
- * Generates a DOCX report and returns it as a Buffer.
- * @param {Object} report - The Mongoose report document.
- * @returns {Promise<Buffer>} - The DOCX as a buffer.
- */
 const generateDocx = async (report) => {
   const results = report.results || [];
   const riskColor =
@@ -122,15 +117,102 @@ const generateDocx = async (report) => {
     }),
   );
 
+  children.push(new Paragraph({ children: [], spacing: { after: 200 } }));
+
+  // ── Entity Resolution Analysis ──
   children.push(
-    new Paragraph({ children: [], spacing: { after: 200 } }),
+    new Paragraph({
+      text: "Intelligence Analysis",
+      heading: HeadingLevel.HEADING_2,
+      spacing: { before: 200, after: 100 },
+    }),
   );
+
+  children.push(
+    new Table({
+      rows: [
+        new TableRow({
+          children: [
+            new TableCell({
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({ text: "Status: ", bold: true, size: 20 }),
+                    new TextRun({
+                      text: report.resolutionStatus,
+                      size: 20,
+                      color: riskColor,
+                      bold: true,
+                    }),
+                  ],
+                }),
+              ],
+              width: { size: 33, type: WidthType.PERCENTAGE },
+            }),
+            new TableCell({
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({ text: "Match: ", bold: true, size: 20 }),
+                    new TextRun({
+                      text: `${report.overallConfidence}%`,
+                      size: 20,
+                      bold: true,
+                    }),
+                  ],
+                }),
+              ],
+              width: { size: 33, type: WidthType.PERCENTAGE },
+            }),
+            new TableCell({
+              children: [
+                new Paragraph({
+                  children: [
+                    new TextRun({ text: "Cluster: ", bold: true, size: 20 }),
+                    new TextRun({
+                      text: report.primaryCluster,
+                      size: 20,
+                      italics: true,
+                    }),
+                  ],
+                }),
+              ],
+              width: { size: 34, type: WidthType.PERCENTAGE },
+            }),
+          ],
+        }),
+      ],
+      width: { size: 100, type: WidthType.PERCENTAGE },
+    }),
+  );
+
+  if (report.sharedPivots && report.sharedPivots.length > 0) {
+    children.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: "VERIFIED PIVOTS: ",
+            bold: true,
+            size: 18,
+            color: "64748B",
+          }),
+          new TextRun({
+            text: report.sharedPivots.join(" • "),
+            size: 18,
+            color: "3B82F6",
+            font: "Courier New",
+          }),
+        ],
+        spacing: { before: 100, after: 200 },
+      }),
+    );
+  }
 
   // ── Summary ──
   if (report.summary) {
     children.push(
       new Paragraph({
-        text: "Summary",
+        text: "Executive Summary",
         heading: HeadingLevel.HEADING_2,
         spacing: { before: 200, after: 100 },
       }),
@@ -200,9 +282,23 @@ const generateDocx = async (report) => {
     children.push(
       new Paragraph({
         children: [
-          new TextRun({ text: "Category: ", bold: true, size: 18, color: "64748B" }),
-          new TextRun({ text: vector.category || "General", size: 18, color: "334155" }),
-          new TextRun({ text: "   |   Confidence: ", bold: true, size: 18, color: "64748B" }),
+          new TextRun({
+            text: "Category: ",
+            bold: true,
+            size: 18,
+            color: "64748B",
+          }),
+          new TextRun({
+            text: vector.category || "General",
+            size: 18,
+            color: "334155",
+          }),
+          new TextRun({
+            text: "   |   Confidence: ",
+            bold: true,
+            size: 18,
+            color: "64748B",
+          }),
           new TextRun({
             text: vector.confidenceScore || "N/A",
             size: 18,
@@ -212,6 +308,30 @@ const generateDocx = async (report) => {
         spacing: { after: 60 },
       }),
     );
+
+    // Analyst Note
+    const breakdown = report.vectorBreakdown?.[idx];
+    if (breakdown) {
+      children.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: "Analyst Note: ",
+              bold: true,
+              size: 16,
+              color: "64748B",
+            }),
+            new TextRun({
+              text: breakdown.reason,
+              size: 16,
+              color: "475569",
+              italics: true,
+            }),
+          ],
+          spacing: { after: 60 },
+        }),
+      );
+    }
 
     // Timestamp
     children.push(
@@ -230,11 +350,15 @@ const generateDocx = async (report) => {
 
     // Source URL
     if (vector.sourceUrl) {
-
       children.push(
         new Paragraph({
           children: [
-            new TextRun({ text: "Source: ", bold: true, size: 16, color: "64748B" }),
+            new TextRun({
+              text: "Source: ",
+              bold: true,
+              size: 16,
+              color: "64748B",
+            }),
             new TextRun({
               text: vector.sourceUrl,
               size: 16,
@@ -246,20 +370,21 @@ const generateDocx = async (report) => {
       );
     }
 
-    // Data block
+    // Data block (FULL DATA)
     const dataStr = JSON.stringify(vector.data || {}, null, 2);
-    const dataLines = (dataStr || "").split("\n").slice(0, 50); // Limit to 50 lines for performance
+    const dataLines = (dataStr || "").split("\n");
 
     children.push(
       new Paragraph({
-        children: dataLines.map((line, i) => 
-          new TextRun({
-            text: line,
-            font: "Consolas",
-            size: 16,
-            color: "475569",
-            break: i > 0 ? 1 : 0,
-          })
+        children: dataLines.map(
+          (line, i) =>
+            new TextRun({
+              text: line,
+              font: "Consolas",
+              size: 16,
+              color: "475569",
+              break: i > 0 ? 1 : 0,
+            }),
         ),
         spacing: { before: 80, after: 200 },
         shading: {
@@ -268,7 +393,6 @@ const generateDocx = async (report) => {
         },
       }),
     );
-
   });
 
   // ── Footer ──

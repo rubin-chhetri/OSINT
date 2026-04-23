@@ -24,7 +24,24 @@ const ReportSchema = new mongoose.Schema(
       enum: ["Low", "Medium", "High"],
       default: "Low",
     },
-    summary: { type: String }, // AI-generated or logic-based summary
+    // Advanced Entity Resolution Fields
+    resolutionStatus: { 
+      type: String, 
+      enum: ["Confirmed", "Ambiguous", "GIGO"],
+      default: "GIGO"
+    },
+    primaryCluster: { type: String, default: "Unknown" },
+    sharedPivots: [String],
+    overallConfidence: { type: Number, default: 0 },
+    vectorBreakdown: [
+      {
+        source: String,
+        individualScore: Number,
+        isCorroborated: Boolean,
+        reason: String,
+      },
+    ],
+    summary: { type: String },
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt

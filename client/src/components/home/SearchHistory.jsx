@@ -11,7 +11,21 @@ const SearchHistory = ({ onSelectReport }) => {
     refetchInterval: 30000, // Refresh every 30s
   });
 
-  if (isLoading) return <div className="text-slate-500 text-sm animate-pulse">Loading history...</div>;
+  if (isLoading) {
+    return (
+      <div className="bg-white border border-slate-200 rounded-lg p-6 h-full animate-pulse shadow-sm">
+        <div className="flex items-center gap-2 mb-6">
+          <div className="w-5 h-5 bg-slate-100 rounded"></div>
+          <div className="h-4 w-32 bg-slate-100 rounded-full"></div>
+        </div>
+        <div className="space-y-3">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-16 w-full bg-slate-50 rounded-lg border border-slate-100"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
   if (isError) return null;
 
   const history = data?.data || [];
@@ -19,13 +33,13 @@ const SearchHistory = ({ onSelectReport }) => {
   if (history.length === 0) return null;
 
   return (
-    <div className="bg-slate-900/30 border border-slate-800 rounded-2xl p-6 h-full">
-      <div className="flex items-center gap-2 mb-6 text-slate-300">
-        <History size={20} />
-        <h3 className="font-bold">Recent Intelligence</h3>
+    <div className="bg-white border border-slate-200 rounded-lg p-6 h-full shadow-sm">
+      <div className="flex items-center gap-2 mb-6 text-slate-900">
+        <History size={18} className="text-slate-400" />
+        <h3 className="font-bold text-sm uppercase tracking-wider">Recent Discovery</h3>
       </div>
 
-      <div className="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
+      <div className="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar pr-1">
         {history.map((report) => (
           <button
             key={report._id}
@@ -33,24 +47,24 @@ const SearchHistory = ({ onSelectReport }) => {
               onSelectReport(report);
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className="w-full flex items-center justify-between p-4 bg-slate-800/40 hover:bg-slate-800 border border-slate-700/50 hover:border-blue-500/50 rounded-xl transition-all group"
+            className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 border border-slate-100 hover:border-blue-500/30 rounded-lg transition-all group"
           >
             <div className="flex flex-col items-start gap-1">
-              <span className="text-white font-medium text-sm truncate max-w-[150px]">
+              <span className="text-slate-900 font-semibold text-sm truncate max-w-[150px]">
                 {report.targetName}
               </span>
               <div className="flex items-center gap-2">
                 <span className={`text-[10px] uppercase font-bold ${
-                  report.riskLevel === 'High' ? 'text-red-400' : 'text-green-400'
+                  report.riskLevel === 'High' ? 'text-red-600' : 'text-green-600'
                 }`}>
                   {report.riskLevel}
                 </span>
-                <span className="text-slate-500 text-[10px] flex items-center gap-1">
+                <span className="text-slate-400 text-[10px] flex items-center gap-1">
                   <Clock size={10} /> {new Date(report.createdAt).toLocaleDateString()}
                 </span>
               </div>
             </div>
-            <ChevronRight size={16} className="text-slate-600 group-hover:text-blue-400 transition-colors" />
+            <ChevronRight size={14} className="text-slate-300 group-hover:text-blue-500 transition-colors" />
           </button>
         ))}
       </div>

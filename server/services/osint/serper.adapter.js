@@ -12,7 +12,7 @@ class SerperAdapter extends BaseAdapter {
     try {
       const response = await axios.post(
         "https://google.serper.dev/search",
-        { q: query },
+        { q: query, num: 20 },
         {
           headers: {
             "X-API-KEY": osintConfig.serperKey,
@@ -21,8 +21,22 @@ class SerperAdapter extends BaseAdapter {
         },
       );
 
-      // We return formatted results (organic search entries)
-      return this.formatResult(response.data.organic, "https://google.com");
+      // Format results and identify platforms (Entity Resolution Phase I)
+      const formattedResults = (response.data.organic || []).map((item) => {
+        let platform = "Web";
+        if (item.link.includes("linkedin.com")) platform = "LinkedIn";
+        else if (item.link.includes("twitter.com") || item.link.includes("x.com")) platform = "Twitter/X";
+        else if (item.link.includes("facebook.com")) platform = "Facebook";
+        else if (item.link.includes("instagram.com")) platform = "Instagram";
+        else if (item.link.includes("github.com")) platform = "GitHub";
+
+        return {
+          ...item,
+          platform,
+        };
+      });
+
+      return this.formatResult(formattedResults, "https://google.com");
     } catch (error) {
       console.error(`Serper Error: ${error.message}`);
       return null; // Return null so the orchestrator can filter it out
