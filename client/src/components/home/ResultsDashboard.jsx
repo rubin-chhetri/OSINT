@@ -12,7 +12,7 @@ import {
   Globe,
   Link2,
   Loader2,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import {
   exportReportMarkdown,
@@ -94,36 +94,58 @@ const ResultsDashboard = ({ report }) => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         {/* Verification Status */}
         <div className="pro-card p-5 relative overflow-hidden bg-white">
-          <div className={`absolute top-0 bottom-0 left-0 w-1 ${
-            report.resolutionStatus === 'Confirmed' ? 'bg-green-500' : 
-            report.resolutionStatus === 'Ambiguous' ? 'bg-amber-500' : 'bg-red-500'
-          }`} />
+          <div
+            className={`absolute top-0 bottom-0 left-0 w-1 ${
+              report.resolutionStatus === "Confirmed"
+                ? "bg-green-500"
+                : report.resolutionStatus === "Ambiguous"
+                  ? "bg-amber-500"
+                  : "bg-red-500"
+            }`}
+          />
           <div className="flex items-center gap-2 mb-2">
-            <div className={`w-2 h-2 rounded-full ${
-              report.resolutionStatus === 'Confirmed' ? 'bg-green-500' : 
-              report.resolutionStatus === 'Ambiguous' ? 'bg-amber-500' : 'bg-red-500'
-            }`} />
-            <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Resolution</span>
+            <div
+              className={`w-2 h-2 rounded-full ${
+                report.resolutionStatus === "Confirmed"
+                  ? "bg-green-500"
+                  : report.resolutionStatus === "Ambiguous"
+                    ? "bg-amber-500"
+                    : "bg-red-500"
+              }`}
+            />
+            <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+              Resolution
+            </span>
           </div>
-          <h2 className="text-xl font-bold text-slate-900">{report.resolutionStatus}</h2>
+          <h2 className="text-xl font-bold text-slate-900">
+            {report.resolutionStatus}
+          </h2>
         </div>
 
         {/* Confidence Score */}
         <div className="pro-card p-5 bg-white">
           <div className="flex items-center gap-2 mb-2 text-slate-500">
             <Zap size={14} />
-            <span className="text-[10px] font-bold uppercase tracking-wider">Confidence</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider">
+              Confidence
+            </span>
           </div>
-          <h2 className="text-xl font-bold text-slate-900">{report.overallConfidence}% Match</h2>
+          <h2 className="text-xl font-bold text-slate-900">
+            {report.overallConfidence}% Match
+          </h2>
         </div>
 
         {/* Primary Cluster */}
         <div className="pro-card p-5 bg-white">
           <div className="flex items-center gap-2 mb-2 text-slate-500">
             <Globe size={14} />
-            <span className="text-[10px] font-bold uppercase tracking-wider">Cluster</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider">
+              Cluster
+            </span>
           </div>
-          <h2 className="text-lg font-bold text-slate-900 truncate">{report.primaryCluster}</h2>
+          <h2 className="text-lg font-bold text-slate-900 truncate">
+            {report.primaryCluster}
+          </h2>
         </div>
 
         {/* Export Button */}
@@ -134,8 +156,12 @@ const ResultsDashboard = ({ report }) => {
             className="w-full h-full pro-card p-5 flex items-center justify-between hover:bg-slate-50 transition-colors bg-white"
           >
             <div className="text-left">
-              <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block mb-1">Export Data</span>
-              <span className="text-slate-900 font-semibold text-sm">Download Report</span>
+              <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider block mb-1">
+                Export Data
+              </span>
+              <span className="text-slate-900 font-semibold text-sm">
+                Download Report
+              </span>
             </div>
             {exporting ? (
               <Loader2 className="animate-spin text-blue-500" size={20} />
@@ -153,7 +179,9 @@ const ResultsDashboard = ({ report }) => {
                 >
                   <span className="text-lg">{opt.icon}</span>
                   <div>
-                    <p className="text-slate-900 text-xs font-semibold">{opt.label}</p>
+                    <p className="text-slate-900 text-xs font-semibold">
+                      {opt.label}
+                    </p>
                     <p className="text-slate-500 text-[10px]">{opt.desc}</p>
                   </div>
                 </button>
@@ -168,11 +196,16 @@ const ResultsDashboard = ({ report }) => {
         <div className="pro-card p-4 flex flex-col md:flex-row md:items-center gap-4 bg-blue-50/5 border-blue-100">
           <div className="flex items-center gap-2 shrink-0">
             <Link2 size={16} className="text-blue-600" />
-            <h4 className="text-blue-600 text-[10px] font-bold uppercase tracking-widest">Shared Intelligence Pivots</h4>
+            <h4 className="text-blue-600 text-[10px] font-bold uppercase tracking-widest">
+              Shared Intelligence Pivots
+            </h4>
           </div>
           <div className="flex flex-wrap gap-2">
             {report.sharedPivots.map((pivot, i) => (
-              <span key={i} className="px-2 py-1 bg-white border border-slate-200 rounded text-[10px] text-slate-600 font-mono">
+              <span
+                key={i}
+                className="px-2 py-1 bg-white border border-slate-200 rounded text-[10px] text-slate-600 font-mono"
+              >
                 {pivot}
               </span>
             ))}
@@ -183,10 +216,7 @@ const ResultsDashboard = ({ report }) => {
       {/* Vector Results Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {report.results.map((vector, idx) => (
-          <div
-            key={idx}
-            className="pro-card bg-white flex flex-col h-full"
-          >
+          <div key={idx} className="pro-card bg-white flex flex-col h-full">
             {/* Header: Fixed Height */}
             <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <div>
@@ -200,13 +230,17 @@ const ResultsDashboard = ({ report }) => {
                     </div>
                   )}
                 </div>
-                <p className="text-[10px] text-slate-500 font-medium">{vector.category}</p>
+                <p className="text-[10px] text-slate-500 font-medium">
+                  {vector.category}
+                </p>
               </div>
-              <div className={`px-2 py-1 rounded text-[10px] font-mono font-bold ${
-                vector.error 
-                  ? "bg-red-50 text-red-600" 
-                  : "bg-blue-50 text-blue-600"
-              }`}>
+              <div
+                className={`px-2 py-1 rounded text-[10px] font-mono font-bold ${
+                  vector.error
+                    ? "bg-red-50 text-red-600"
+                    : "bg-blue-50 text-blue-600"
+                }`}
+              >
                 {vector.error ? "FAILURE" : vector.confidenceScore}
               </div>
             </div>
@@ -216,9 +250,13 @@ const ResultsDashboard = ({ report }) => {
               {/* Analyst Reason: Muted & Simple */}
               {report.vectorBreakdown?.[idx] && (
                 <div className="mb-4 flex items-start gap-2">
-                  <AlertCircle size={12} className="text-slate-400 mt-0.5 shrink-0" />
+                  <AlertCircle
+                    size={12}
+                    className="text-slate-400 mt-0.5 shrink-0"
+                  />
                   <p className="text-[10px] text-slate-500 font-medium">
-                    <span className="text-slate-900">ANALYST NOTE:</span> {report.vectorBreakdown[idx].reason}
+                    <span className="text-slate-900">ANALYST NOTE:</span>{" "}
+                    {report.vectorBreakdown[idx].reason}
                   </p>
                 </div>
               )}
@@ -228,8 +266,13 @@ const ResultsDashboard = ({ report }) => {
                 {vector.error ? (
                   <div className="py-12 text-center">
                     <Shield size={24} className="mx-auto text-slate-300 mb-3" />
-                    <p className="text-red-500 text-xs font-bold mb-1 uppercase tracking-wider">{vector.message || "Vector Unreachable"}</p>
-                    <p className="text-slate-400 text-[10px] px-8 italic">Service response indicates a non-critical acquisition failure.</p>
+                    <p className="text-red-500 text-xs font-bold mb-1 uppercase tracking-wider">
+                      {vector.message || "Vector Unreachable"}
+                    </p>
+                    <p className="text-slate-400 text-[10px] px-8 italic">
+                      Service response indicates a non-critical acquisition
+                      failure.
+                    </p>
                   </div>
                 ) : (
                   <div className="pt-2">
@@ -248,7 +291,8 @@ const ResultsDashboard = ({ report }) => {
               <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
                 <div className="flex items-center gap-3">
                   <span className="text-[9px] text-slate-400 flex items-center gap-1 font-mono uppercase tracking-tighter">
-                    <Clock size={10} /> {new Date(vector.timestamp).toLocaleTimeString()}
+                    <Clock size={10} />{" "}
+                    {new Date(vector.timestamp).toLocaleTimeString()}
                   </span>
                 </div>
                 {!vector.error && vector.sourceUrl && (
