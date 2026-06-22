@@ -28,7 +28,6 @@ app.use(
 
 app.get("/api/test", (req, res) => res.json({ message: "Successful!" }));
 
-// Routes
 app.use("/api/v1/osint", osintRoutes);
 
 app.use(errorHandler);

@@ -1,8 +1,3 @@
-/**
- * Generates a Markdown report string from a Report document.
- * @param {Object} report - The Mongoose report document.
- * @returns {string} - The formatted Markdown string.
- */
 const generateMarkdown = (report) => {
   const lines = [];
 
